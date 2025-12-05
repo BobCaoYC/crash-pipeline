@@ -1,0 +1,159 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "${RABBIT_PORT}:5672"     # AMQP
+      - "${RABBIT_UI}:15672"      # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "${MINIO_API_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    volumes:
+      - ./minio-data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASS}
+      MINIO_PROMETHEUS_AUTH_TYPE: public 
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  extractor:
+    build: ./extractor
+    container_name: extractor
+    env_file: .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "2112:2112"   # host:container metrics
+    environment:
+      - METRICS_ADDR=:2112
+
+  transformer:
+    build: ./transformer
+    container_name: transformer
+    env_file: .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+
+  cleaner:
+    build: ./cleaner
+    container_name: cleaner
+    env_file: .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./minio-data:/data
+    ports:
+      - "8002:8000" 
+
+  streamlit:
+    build: ./streamlit
+    container_name: streamlit
+    ports: ["8501:8501"]
+    volumes:
+      - ./streamlit/overview.md:/app/overview.md
+      - ./streamlit/pages:/app/pages
+      - ./minio-data:/data
+      - ./streamlit/data:/app/data
+    environment:
+      # ----- App paths -----
+      PIPELINE_OVERVIEW_PATH: "/app/overview.md"
+      GOLD_DB_PATH: "/data/gold.duckdb"
+      SCHEDULER_STATE_PATH: "/app/data/scheduler_state.json"
+      SCHEDULER_LAST_N_DAYS: "7"
+
+      # ----- MinIO -----
+      MINIO_ENDPOINT: "minio:9000"
+      MINIO_ACCESS_KEY: ${MINIO_USER}
+      MINIO_SECRET_KEY: ${MINIO_PASS}
+      MINIO_SECURE: "0"
+
+      # ----- (Optional) Extractor HTTP shim (kept for future) -----
+      STREAMING_ENDPOINT: "http://extractor:8000/stream"
+      BACKFILL_ENDPOINT:  "http://extractor:8000/backfill"
+
+      # ----- RabbitMQ (AMQP + Management API) -----
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBIT_USER: ${RABBIT_USER:-guest}
+      RABBIT_PASS: ${RABBIT_PASS:-guest}
+
+      # Management API base (internal service name + mgmt port)
+      RABBIT_API_BASE: "http://rabbitmq:15672"
+      RABBIT_VHOST: "/"
+      RABBIT_ROUTING_KEY: "extract"   # must match the queue your extractor consumes
+
+      # (Optional) service hosts for health pings
+      EXTRACTOR_HOST: "extractor"
+      EXTRACTOR_PORT: "8000"
+      TRANSFORMER_HOST: "transformer"
+      TRANSFORMER_PORT: "8000"
+      CLEANER_HOST: "cleaner"
+      CLEANER_PORT: "8000"
+
+      MINIO_PROMETHEUS_AUTH_TYPE: public
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    user: "${UID}:${GID}"
+    ports:
+      - "9090:9090"   # Prometheus UI
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus_data:/prometheus
+    restart: unless-stopped 
+    
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    user: "${UID}:${GID}" 
+    ports:
+      - "3000:3000"   # Grafana UI
+    volumes:
+      - ./grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  rabbitmq-exporter:
+    image: kbudde/rabbitmq-exporter
+    ports:
+      - "9419:9419"
+    environment:
+      RABBIT_URL: http://rabbitmq:15672
+      RABBIT_USER: guest
+      RABBIT_PASSWORD: guest
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
