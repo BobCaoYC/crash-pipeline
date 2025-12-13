@@ -20,7 +20,7 @@ This pipeline pulls data from the Chicago Data Portal (Socrata Open Data API). I
 5. **Monitoring** runs continuously: each service exposes metrics which **Prometheus** scrapes and **Grafana** visualizes.
 
 ### What the ML model predicts
-The model predicts **[REPLACE WITH YOUR TARGET]**, for example:
+The model predicts **Crash Type**, for example:
 - whether a crash is **high severity**
 - whether a crash results in **injury/fatality**
 - or another defined label derived from the Gold dataset
@@ -58,7 +58,7 @@ Each service exposes a `/metrics` endpoint (Prometheus format). Prometheus scrap
 
 ---
 
-## 3) Screenshots / video proof (required)
+## 3) Screenshots / video proof
 
 If you do not already have screenshots, record them again. Place files under `docs/screenshots/` and update the links below.
 
@@ -90,8 +90,6 @@ If you do not already have screenshots, record them again. Place files under `do
 ### Prometheus targets (services up)
 ![Prometheus targets](docs/screenshots/prometheus-targets.png)
 
-Optional: add a short screen recording link here:
-- Demo video: [ADD LINK]
 
 ---
 
