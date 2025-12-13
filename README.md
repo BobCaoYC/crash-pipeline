@@ -96,3 +96,122 @@ Optional: add a short screen recording link here:
 ---
 
 
+### 5. How to Run the Pipeline
+
+This project is fully containerized using Docker Compose, allowing the entire pipeline to be launched and managed as a single system.
+
+### Step 1: Clone the repository
+git clone <YOUR_REPOSITORY_URL>
+cd chicago-crash-ml-pipeline
+
+### Step 2: Create the environment configuration
+
+Copy the provided example file and populate it with the required values (API tokens, dataset IDs, and credentials).
+
+cp .env.example .env
+
+
+At minimum, this file must include:
+
+Chicago Data Portal (Socrata) API token and dataset identifiers
+
+MinIO credentials and bucket names
+
+DuckDB output path
+
+Grafana admin credentials
+
+### Step 3: Create required local directories
+
+These folders are mounted into the containers and allow inspection of intermediate and final data products.
+
+mkdir -p data/raw data/silver data/gold
+
+### Step 4: Start the full system
+
+Launch all services (pipeline stages, storage, UI, and monitoring) with a single command:
+
+docker compose up -d
+
+
+Docker Compose will start:
+
+MinIO object storage
+
+Extractor, Transformer, and Cleaner services
+
+Streamlit application
+
+Prometheus metrics server
+
+Grafana dashboard service
+
+### Step 5: Access running services
+
+Once the containers are running, the following interfaces are available:
+
+Streamlit application: http://localhost:8501
+
+Grafana dashboards: http://localhost:3000
+
+Prometheus UI: http://localhost:9090
+
+Grafana is preconfigured to read metrics from Prometheus, which scrapes the pipeline services automatically.
+
+### Step 6: Execute the pipeline
+
+Depending on configuration, pipeline stages can be triggered via:
+
+Streamlit controls
+
+API endpoints exposed by the extractor
+
+Container startup jobs or scheduled runs
+
+A typical workflow is:
+
+Run the Extractor to pull raw data into MinIO
+
+Run the Transformer to produce Silver datasets
+
+Run the Cleaner to generate Gold DuckDB tables
+
+Use Streamlit to train models and generate predictions
+
+### 6. Improvements and Extra Features
+
+In addition to the core pipeline requirements, several enhancements were implemented to improve reliability, usability, and analytical depth:
+
+End-to-end observability:
+Each pipeline component exposes Prometheus metrics for latency, error counts, and row throughput, enabling real-time monitoring.
+
+Rows-in / rows-out tracking:
+Metrics were added to detect stalled or incomplete ETL stages and validate data flow integrity.
+
+Custom Grafana dashboards:
+Dashboards visualize pipeline health, processing duration, error rates, and last successful run timestamps.
+
+Gold-layer DuckDB storage:
+A DuckDB Gold layer enables fast analytical queries and seamless integration with Streamlit and notebooks.
+
+Streamlit model workflow:
+The UI supports model training, evaluation, and prediction rather than serving only static visualizations.
+
+Feature engineering and data validation:
+Additional cleaning logic and derived features were added during the Cleaner stage to improve model stability and performance.
+
+These enhancements demonstrate a focus on production-grade design rather than a one-off script-based solution.
+
+### 7. Lessons Learned and Challenges
+
+Designing a multi-service pipeline highlighted the importance of clear data contracts between stages.
+
+Managing container networking and environment variables was a frequent source of early errors.
+
+Public open datasets often contain inconsistencies that require explicit cleaning and validation logic.
+
+Adding monitoring early significantly reduced debugging time when stages failed or slowed.
+
+With more time, the system could be extended with automated data quality checks, alerting rules, and CI-based testing.
+
+This project reinforced best practices in data engineering, reproducibility, and ML system design, and provided hands-on experience building an observable, end-to-end pipeline.
