@@ -96,7 +96,7 @@ Optional: add a short screen recording link here:
 ---
 
 
-### 5. How to Run the Pipeline
+## 5) How to Run the Pipeline
 
 This project is fully containerized using Docker Compose, allowing the entire pipeline to be launched and managed as a single system.
 
@@ -178,7 +178,9 @@ Run the Cleaner to generate Gold DuckDB tables
 
 Use Streamlit to train models and generate predictions
 
-### 6. Improvements and Extra Features
+---
+
+## 6) Improvements and Extra Features
 
 In addition to the core pipeline requirements, several enhancements were implemented to improve reliability, usability, and analytical depth:
 
@@ -202,7 +204,7 @@ Additional cleaning logic and derived features were added during the Cleaner sta
 
 These enhancements demonstrate a focus on production-grade design rather than a one-off script-based solution.
 
-### 7. Lessons Learned and Challenges
+## 7) Lessons Learned and Challenges
 
 Designing a multi-service pipeline highlighted the importance of clear data contracts between stages.
 
