@@ -95,25 +95,4 @@ Optional: add a short screen recording link here:
 
 ---
 
-## 4) Architecture diagram
-
-Export your diagram to `docs/architecture.png` (or `.svg`) and commit it.
-
-![Architecture diagram](docs/architecture.png)
-
-Mermaid (diagram-as-code) version:
-
-```mermaid
-flowchart LR
-  A[Extractor (Go)\nSocrata API ingestion] --> B[MinIO\nRaw Layer]
-  B --> C[Transformer (Python)\nMerge + light cleaning]
-  C --> D[Silver CSVs]
-  D --> E[Cleaner (Python)\nQuality rules + features]
-  E --> F[DuckDB\nGold Layer]
-  F --> G[Streamlit App\nTrain + Predict + Visualize]
-
-  A -. metrics .-> P[Prometheus]
-  C -. metrics .-> P
-  E -. metrics .-> P
-  P --> R[Grafana Dashboards]
 
