@@ -4,7 +4,7 @@ A containerized, end-to-end data engineering + ML system that pulls Chicago traf
 
 ---
 
-## 1) What this pipeline does (in plain English)
+## 1) Objectives
 
 ### The problem it solves
 Chicago crash records are spread across multiple related datasets (crashes, vehicles, and people). On their own, these tables are hard to use for analysis or machine learning because they require consistent keys, joining logic, and careful cleaning. This project automates the process of collecting the data, building a clean analytics-ready dataset, and training a model that predicts crash outcomes.
