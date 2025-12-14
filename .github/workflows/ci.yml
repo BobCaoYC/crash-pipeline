@@ -64,8 +64,8 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          python -c "import transformer.py"
-          python -c "import cleaning_rules.py"
+          python -c "import transformer.transformer"
+          python -c "import cleaner.cleaning_rules"
 
   docker-validation:
     name: Docker Validation
@@ -135,7 +135,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           python - <<EOF
-          import <YOUR_TRANSFORMER_MODULE_1>
+          import transformer.transformer
           print("Transformer imported successfully")
           EOF
 
@@ -144,6 +144,6 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           python - <<EOF
-          import <YOUR_CLEANER_MODULE_1>
+          import cleaner.cleaning_rules
           print("Cleaner imported successfully")
           EOF
