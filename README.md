@@ -60,8 +60,6 @@ Each service exposes a `/metrics` endpoint (Prometheus format). Prometheus scrap
 
 ## 3) Screenshots / video proof
 
-If you do not already have screenshots, record them again. Place files under `docs/screenshots/` and update the links below.
-
 ### Extractor running
 ![Extractor running](docs/screenshots/extractor-running.png)
 
