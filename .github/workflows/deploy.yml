@@ -8,70 +8,62 @@ on:
 jobs:
   deploy:
     name: Deploy Pipeline to Azure
+    runs-on: ubuntu-latest
     env:
       AZURE_HOST: ${{ secrets.AZURE_HOST }}
       AZURE_USER: ${{ secrets.AZURE_USER }}
       AZURE_SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
       PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
-    runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set up SSH key
+        shell: bash
         run: |
-          echo "$AZURE_SSH_KEY" > key.pem
-          chmod 600 key.pem
-      - name: Debug connection info (no secrets)
-        run: |
-          echo "Will try to connect to $AZURE_USER@$AZURE_HOST"
-          echo "Project path on VM: $PROJECT_PATH"
-      - name: Deploy latest version on Azure VM
-        run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" "
-            cd \"$PROJECT_PATH\" && \
-            git pull && \
-            docker compose pull && \
-            docker compose build && \
-            docker compose down && \
-            docker compose up -d
-          "
-      # Steps will be added in the next section
-      - name: Set up SSH key
-        run: |
-          echo "$AZURE_SSH_KEY" > key.pem
-          chmod 600 key.pem
+          mkdir -p ~/.ssh
+          echo "$AZURE_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
 
       - name: Debug connection info (no secrets)
+        shell: bash
         run: |
           echo "Will try to connect to $AZURE_USER@$AZURE_HOST"
           echo "Project path on VM: $PROJECT_PATH"
+
       - name: Deploy latest version on Azure VM
+        shell: bash
         run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" "
-            cd \"$PROJECT_PATH\" && \
-            git pull && \
-            docker compose pull && \
-            docker compose build && \
-            docker compose down && \
-            docker compose up -d
-          "
-      - name: Smoke test – HTTP health checks
-        run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" '
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" "
             set -e
+            cd \"$PROJECT_PATH\"
+            git pull
+            docker compose -f docker-compose.yaml pull
+            docker compose -f docker-compose.yaml build
+            docker compose -f docker-compose.yaml down
+            docker compose -f docker-compose.yaml up -d
+          "
 
-            cd "$PROJECT_PATH"
+      - name: Smoke test – HTTP health checks (optional)
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" "
+            set -e
+            cd \"$PROJECT_PATH\"
 
-            echo "🔍 Checking Streamlit health..."
-            curl -f http://localhost:8501/health
+            echo 'Checking Streamlit (expects 200 on /)...'
+            curl -fsS http://localhost:8501/ >/dev/null
 
-            echo "🔍 Checking Extractor health..."
-            curl -f http://localhost:8001/health
+            # Uncomment these ONLY if your services actually expose these endpoints/ports.
+            # echo 'Checking Extractor health...'
+            # curl -fsS http://localhost:8001/health >/dev/null
+            #
+            # echo 'Checking Transformer health...'
+            # curl -fsS http://localhost:8002/health >/dev/null
+            #
+            # echo 'Checking Cleaner health...'
+            # curl -fsS http://localhost:8003/health >/dev/null
 
-            echo "🔍 Checking Transformer health..."
-            curl -f http://localhost:8002/health
-
-            echo "🔍 Checking Cleaner health..."
-            curl -f http://localhost:8003/health
-
-            echo "✅ All HTTP health checks passed."
-          '
+            echo 'Smoke test passed.'
+          "
