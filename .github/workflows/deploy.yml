@@ -1,0 +1,14 @@
+name: Deploy to Azure VM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Pipeline to Azure
+    runs-on: ubuntu-latest
+
+    steps:
+      # Steps will be added in the next section
