@@ -1,0 +1,12 @@
+streamlit
+streamlit-autorefresh
+requests
+boto3
+pika
+minio
+duckdb
+pandas
+scikit-learn==1.6.1
+joblib
+croniter
+reportlab
