@@ -58,34 +58,24 @@ Each service exposes a `/metrics` endpoint (Prometheus format). Prometheus scrap
 
 ---
 
-## 3) Screenshots / video proof
-
-### Extractor running
-![Extractor running](docs/screenshots/extractor-running.png)
-
-### Transformer running
-![Transformer running](docs/screenshots/transformer-running.png)
-
-### Cleaner running
-![Cleaner running](docs/screenshots/cleaner-running.png)
+## 3) Screenshots
 
 ### Streamlit app
 **Home**
 ![Streamlit home](docs/screenshots/streamlit-home.png)
 
-**Train model**
+**TModel**
 ![Streamlit train](docs/screenshots/streamlit-train.png)
 
-**Prediction page**
-![Streamlit predict](docs/screenshots/streamlit-predict.png)
 
-### DuckDB tables (CLI or notebook)
+
+### DuckDB tables
 ![DuckDB tables](docs/screenshots/duckdb-tables.png)
 
-### Grafana dashboard (metrics)
+### Grafana dashboard
 ![Grafana dashboard](docs/screenshots/grafana-dashboard.png)
 
-### Prometheus targets (services up)
+### Prometheus targets
 ![Prometheus targets](docs/screenshots/prometheus-targets.png)
 
 
