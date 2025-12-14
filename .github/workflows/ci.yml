@@ -75,6 +75,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Create CI .env for docker compose
+        run: |
+          cat > .env <<'EOF'
+          UID=1000
+          GID=1000
+
+          MINIO_API_PORT=9000
+          MINIO_CONSOLE_PORT=9001
+          MINIO_USER=minio
+          MINIO_PASS=minio123
+
+          RABBIT_PORT=5672
+          RABBIT_UI=15672
+          RABBIT_USER=guest
+          RABBIT_PASS=guest
+          EOF
 
       # Optional but helpful in some repos
       - name: Show Docker versions
