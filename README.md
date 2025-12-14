@@ -206,10 +206,8 @@ Designing a multi-service pipeline highlighted the importance of clear data cont
 
 Managing container networking and environment variables was a frequent source of early errors.
 
-Public open datasets often contain inconsistencies that require explicit cleaning and validation logic.
-
-Adding monitoring early significantly reduced debugging time when stages failed or slowed.
-
+Using the VM created numerous problems to be tackled in conjuction with problems within the scope of the project.
+The multitude of tools to be used in harmony was difficult to fully utilize to a perfect degree.
 With more time, the system could be extended with automated data quality checks, alerting rules, and CI-based testing.
 
 This project reinforced best practices in data engineering, reproducibility, and ML system design, and provided hands-on experience building an observable, end-to-end pipeline.
