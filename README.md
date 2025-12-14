@@ -80,7 +80,9 @@ Each service exposes a `/metrics` endpoint (Prometheus format). Prometheus scrap
 
 
 ---
+## 4) Architecture
 
+![Architecture](docs/screenshots/architecture.png)
 
 ## 5) How to Run the Pipeline
 
