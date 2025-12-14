@@ -86,14 +86,14 @@ jobs:
       # Update service names here to match EXACTLY what you have under `services:` in docker-compose.yml.
       - name: Build key services with docker compose
         run: |
-          docker compose -f docker-compose.yml build extractor
-          docker compose -f docker-compose.yml build transformer
-          docker compose -f docker-compose.yml build cleaner
-          docker compose -f docker-compose.yml build streamlit
+          docker compose -f docker-compose.yaml build extractor
+          docker compose -f docker-compose.yaml build transformer
+          docker compose -f docker-compose.yaml build cleaner
+          docker compose -f docker-compose.yaml build streamlit
 
-      - name: Validate docker-compose.yml
+      - name: Validate docker-compose.yaml
         run: |
-          docker compose -f docker-compose.yml config
+          docker compose -f docker-compose.yaml config
 
   sanity-check:
     name: Sanity Check
